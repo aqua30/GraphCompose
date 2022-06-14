@@ -4,7 +4,9 @@ import android.graphics.Paint
 import android.graphics.PointF
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.Center
@@ -13,23 +15,25 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.aqua30.graphcompose.ui.theme.GraphComposeTheme
-import java.util.*
 
 /**
  * Created by Saurabh
  */
 @Composable
 fun Graph(
-    modifier : Modifier
+    modifier : Modifier,
+    xValues: List<Int>,
+    yValues: List<Int>,
+    points: List<Float>,
+    paddingSpace: Dp,
+    verticalStep: Int
 ) {
-    val xValues = (0..9).map { it + 1 }
-    val yStep = 50
-    val yValues = (0..6).map { (it + 1) * yStep }
-    val points = listOf(150,100,250,200,330,300,90,120,285,199)
-    val paddingSpace = 16.dp
+    val controlPoints1 = mutableListOf<PointF>()
+    val controlPoints2 = mutableListOf<PointF>()
+    val coordinates = mutableListOf<PointF>()
     val density = LocalDensity.current
     val textPaint = remember(density) {
         Paint().apply {
@@ -37,15 +41,6 @@ fun Graph(
             textAlign = Paint.Align.CENTER
             textSize = density.run { 12.sp.toPx() }
         }
-    }
-    val connectionPoints1 = remember {
-        mutableListOf<PointF>()
-    }
-    val connectionPoints2 = remember {
-        mutableListOf<PointF>()
-    }
-    val coordinates = remember {
-        mutableListOf<PointF>()
     }
 
     Box(
@@ -59,6 +54,7 @@ fun Graph(
         ) {
             val xAxisSpace = (size.width - paddingSpace.toPx()) / xValues.size
             val yAxisSpace = size.height / yValues.size
+            /** placing x axis points */
             for (i in xValues.indices) {
                 drawContext.canvas.nativeCanvas.drawText(
                     "${xValues[i]}",
@@ -67,6 +63,7 @@ fun Graph(
                     textPaint
                 )
             }
+            /** placing y axis points */
             for (i in yValues.indices) {
                 drawContext.canvas.nativeCanvas.drawText(
                     "${yValues[i]}",
@@ -75,28 +72,36 @@ fun Graph(
                     textPaint
                 )
             }
+            /** placing our x axis points */
             for (i in points.indices) {
                 val x1 = xAxisSpace * xValues[i]
-                val y1 = size.height - (yAxisSpace * (points[i]/yStep.toFloat()))
+                val y1 = size.height - (yAxisSpace * (points[i]/verticalStep.toFloat()))
                 coordinates.add(PointF(x1,y1))
+                /** drawing circles to indicate all the points */
+                drawCircle(
+                    color = Color.Red,
+                    radius = 10f,
+                    center = Offset(x1,y1)
+                )
             }
+            /** calculating the connection points */
             for (i in 1 until coordinates.size) {
-                connectionPoints1.add(PointF((coordinates[i].x + coordinates[i - 1].x) / 2, coordinates[i - 1].y))
-                connectionPoints2.add(PointF((coordinates[i].x + coordinates[i - 1].x) / 2, coordinates[i].y))
+                controlPoints1.add(PointF((coordinates[i].x + coordinates[i - 1].x) / 2, coordinates[i - 1].y))
+                controlPoints2.add(PointF((coordinates[i].x + coordinates[i - 1].x) / 2, coordinates[i].y))
             }
-
+            /** drawing the path */
             val stroke = Path().apply {
                 reset()
                 moveTo(coordinates.first().x, coordinates.first().y)
                 for (i in 0 until coordinates.size - 1) {
                     cubicTo(
-                        connectionPoints1[i].x,connectionPoints1[i].y,
-                        connectionPoints2[i].x,connectionPoints2[i].y,
+                        controlPoints1[i].x,controlPoints1[i].y,
+                        controlPoints2[i].x,controlPoints2[i].y,
                         coordinates[i + 1].x,coordinates[i + 1].y
                     )
                 }
             }
-
+            /** filling the area under the path */
             val fillPath = android.graphics.Path(stroke.asAndroidPath())
                 .asComposePath()
                 .apply {
@@ -122,26 +127,6 @@ fun Graph(
                     cap = StrokeCap.Round
                 )
             )
-
-            for (i in coordinates.indices) {
-                drawCircle(
-                    color = Color.Red,
-                    radius = 10f,
-                    center = Offset(coordinates[i].x,coordinates[i].y)
-                )
-            }
         }
-    }
-}
-
-//@Preview
-@Composable
-fun previewCurve() {
-    GraphComposeTheme {
-        Graph(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(500.dp)
-        )
     }
 }

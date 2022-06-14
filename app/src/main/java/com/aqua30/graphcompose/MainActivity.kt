@@ -19,13 +19,19 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             GraphComposeTheme {
+                val yStep = 50
                 Box(
                     modifier = Modifier.fillMaxSize().background(Color.DarkGray)
                 ) {
                     Graph(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(500.dp)
+                            .height(500.dp),
+                        xValues = (0..9).map { it + 1 },
+                        yValues = (0..6).map { (it + 1) * yStep },
+                        points = listOf(150f,100f,250f,200f,330f,300f,90f,120f,285f,199f),
+                        paddingSpace = 16.dp,
+                        verticalStep = yStep
                     )
                 }
             }
