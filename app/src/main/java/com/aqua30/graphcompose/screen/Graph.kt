@@ -47,7 +47,7 @@ fun Graph(
     val density = LocalDensity.current
     val textPaint = remember(density) {
         Paint().apply {
-            color = graphAppearance.graphColor.toArgb()
+            color = graphAppearance.graphAxisColor.toArgb()
             textAlign = Paint.Align.CENTER
             textSize = density.run { 12.sp.toPx() }
         }

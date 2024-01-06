@@ -46,11 +46,11 @@ class MainActivity : ComponentActivity() {
                         paddingSpace = 16.dp,
                         verticalStep = yStep,
                         graphAppearance = GraphAppearance(
-                            MaterialTheme.colors.primary,
+                            Color.White,
                             MaterialTheme.colors.primary,
                             1f,
-                            false,
-                            MaterialTheme.colors.primary,
+                            true,
+                            Color.Green,
                             false,
                             MaterialTheme.colors.secondary,
                             MaterialTheme.colors.background
