@@ -1,4 +1,4 @@
-package com.aqua30.graphcompose.screen
+package com.mioshek.chartplanner.views.graphs
 
 import android.graphics.Paint
 import android.graphics.PointF
@@ -12,16 +12,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.asAndroidPath
+import androidx.compose.ui.graphics.asComposePath
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.aqua30.graphcompose.models.GraphAppearance
 
 /**
- * Created by Saurabh
+ * Created by Saurabh url: https://github.com/aqua30/GraphCompose forked by Mioshek https://github.com/Mioshek
  */
+
 @Composable
 fun Graph(
     modifier : Modifier,
@@ -29,7 +38,8 @@ fun Graph(
     yValues: List<Int>,
     points: List<Float>,
     paddingSpace: Dp,
-    verticalStep: Int
+    verticalStep: Int,
+    graphAppearance: GraphAppearance
 ) {
     val controlPoints1 = mutableListOf<PointF>()
     val controlPoints2 = mutableListOf<PointF>()
@@ -37,7 +47,7 @@ fun Graph(
     val density = LocalDensity.current
     val textPaint = remember(density) {
         Paint().apply {
-            color = android.graphics.Color.BLACK
+            color = graphAppearance.graphColor.toArgb()
             textAlign = Paint.Align.CENTER
             textSize = density.run { 12.sp.toPx() }
         }
@@ -45,7 +55,7 @@ fun Graph(
 
     Box(
         modifier = modifier
-            .background(Color.White)
+            .background(graphAppearance.backgroundColor)
             .padding(horizontal = 8.dp, vertical = 12.dp),
         contentAlignment = Center
     ) {
@@ -78,11 +88,13 @@ fun Graph(
                 val y1 = size.height - (yAxisSpace * (points[i]/verticalStep.toFloat()))
                 coordinates.add(PointF(x1,y1))
                 /** drawing circles to indicate all the points */
-                drawCircle(
-                    color = Color.Red,
-                    radius = 10f,
-                    center = Offset(x1,y1)
-                )
+                if (graphAppearance.isCircleVisible){
+                    drawCircle(
+                        color = graphAppearance.circleColor,
+                        radius = 10f,
+                        center = Offset(x1,y1)
+                    )
+                }
             }
             /** calculating the connection points */
             for (i in 1 until coordinates.size) {
@@ -109,21 +121,23 @@ fun Graph(
                     lineTo(xAxisSpace, size.height - yAxisSpace)
                     close()
                 }
-            drawPath(
-                fillPath,
-                brush = Brush.verticalGradient(
-                    listOf(
-                        Color.Cyan,
-                        Color.Transparent,
+            if (graphAppearance.iscolorAreaUnderChart){
+                drawPath(
+                    fillPath,
+                    brush = Brush.verticalGradient(
+                        listOf(
+                            graphAppearance.colorAreaUnderChart,
+                            Color.Transparent,
+                        ),
+                        endY = size.height - yAxisSpace
                     ),
-                    endY = size.height - yAxisSpace
-                ),
-            )
+                )
+            }
             drawPath(
                 stroke,
-                color = Color.Black,
+                color = graphAppearance.graphColor,
                 style = Stroke(
-                    width = 5f,
+                    width = graphAppearance.graphThickness,
                     cap = StrokeCap.Round
                 )
             )
