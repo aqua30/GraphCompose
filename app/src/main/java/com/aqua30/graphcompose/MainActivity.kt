@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.aqua30.graphcompose.screen.Graph
+import com.aqua30.graphcompose.models.GraphAppearance
 import com.aqua30.graphcompose.ui.theme.GraphComposeTheme
+import com.mioshek.chartplanner.views.graphs.Graph
 import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
@@ -42,7 +44,17 @@ class MainActivity : ComponentActivity() {
                         yValues = (0..6).map { (it + 1) * yStep },
                         points = points,
                         paddingSpace = 16.dp,
-                        verticalStep = yStep
+                        verticalStep = yStep,
+                        graphAppearance = GraphAppearance(
+                            Color.White,
+                            MaterialTheme.colors.primary,
+                            1f,
+                            true,
+                            Color.Green,
+                            false,
+                            MaterialTheme.colors.secondary,
+                            MaterialTheme.colors.background
+                        )
                     )
                 }
             }
